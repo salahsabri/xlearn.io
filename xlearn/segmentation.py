@@ -50,7 +50,8 @@ Module containing model_choose, seg_train and seg_predict routines
 """
 import numpy as np
 import time
-import dxchange
+from os.path import join
+from skimage import io
 from xlearn.utils import nor_data, extract_3d, reconstruct_patches
 from xlearn.models import transformer2, transformer3_pooling
 
@@ -74,44 +75,32 @@ def seg_train(img_x, img_y, patch_size = 32,
                 batch_size =1000, nb_epoch = 20, nb_down = 2, nb_gpu = 1):
     """
     Function description.
-
     Parameters
     ----------
     img_x: array, 2D or 3D
         Training input of the model. It is the raw image for the segmentation.
-
     img_y: array, 2D or 3D
         Training output of the model. It is the corresponding segmentation of the training input.
-
     patch_size: int
         The size of the small patches extracted from the input images. This size should be big enough to cover the
         features of the segmentation object.
-
     patch_step: int
          The pixel steps between neighbour patches. Larger steps leads faster speed, but less quality. I recommend 1
          unless you need quick test of the algorithm.
-
     nb_conv: int
           Number of the covolutional kernals for the first layer. This number doubles after each downsampling layer.
-
     size_conv: int
           Size of the convolutional kernals.
-
     batch_size: int
           Batch size for the training. Bigger size leads faster speed. However, it is restricted by the memory size of
           the GPU. If the user got the memory error, please decrease the batch size.
-
     nb_epoch: int
           Number of the epoches for the training. It can be understand as the number of iterations during the training.
           Please define this number as the actual convergence for different data.
-
     nb_down: int
           Number of the downsampling for the images in the model.
-
     nb_gpu: int
           Number of GPUs you want to use for the training.
-
-
     Returns
     -------
     mdl
@@ -145,50 +134,37 @@ def seg_predict(img, wpath, spath, patch_size = 32, patch_step = 1,
                   batch_size=1000, nb_down=2, nb_gpu = 1):
     """
     Function description
-
     Parameters
     ----------
     img : array
         The images need to be segmented.
-
     wpath: string
         The path where the trained weights of the model can be read.
-
     spath: string
         The path to save the segmented images.
-
     patch_size: int
         The size of the small patches extracted from the input images. This size should be big enough to cover the
         features of the segmentation object.
-
     patch_step: int
          The pixel steps between neighbour patches. Larger steps leads faster speed, but less quality. I recommend 1
          unless you need quick test of the algorithm.
-
     nb_conv: int
           Number of the covolutional kernals for the first layer. This number doubles after each downsampling layer.
-
     size_conv: int
           Size of the convolutional kernals.
-
     batch_size: int
           Batch size for the training. Bigger size leads faster speed. However, it is restricted by the memory size of
           the GPU. If the user got the memory error, please decrease the batch size.
-
     nb_epoch: int
           Number of the epoches for the training. It can be understand as the number of iterations during the training.
           Please define this number as the actual convergence for different data.
-
     nb_down: int
           Number of the downsampling for the images in the model.
-
     nb_gpu: int
           Number of GPUs you want to use for the training.
-
     Returns
     -------
     save the segmented images to the spath.
-
       """
     patch_shape = (patch_size, patch_size)
     img = np.float32(nor_data(img))
@@ -202,9 +178,8 @@ def seg_predict(img, wpath, spath, patch_size = 32, patch_step = 1,
         predict_y = mdl.predict(predict_x, batch_size=batch_size)
         predict_y = np.reshape(predict_y, (predict_y.shape[0],patch_size, patch_size))
         predict_y = reconstruct_patches(predict_y, (ih, iw), patch_step)
-        fname = spath + 'prd'
-        dxchange.write_tiff(predict_y, fname, dtype='float32')
-
+        fname = 'prd.tif'
+        io.imsave(join(spath,fname),predict_y)
     else:
         pn, ih, iw = img.shape
         for i in range(pn):
@@ -216,6 +191,6 @@ def seg_predict(img, wpath, spath, patch_size = 32, patch_step = 1,
             predict_y = mdl.predict(predict_x, batch_size=batch_size)
             predict_y = np.reshape(predict_y, (len(predict_y), patch_size, patch_size))
             predict_y = reconstruct_patches(predict_y, (ih, iw), patch_step)
-            fname = spath + 'prd-' + str(i)
-            dxchange.write_tiff(predict_y, fname, dtype='float32')
+            fname = 'prd-' + str(i)+'.tif'
+            io.imsave(join(spath,fname),predict_y)
             print('The prediction runs for %s seconds' % (time.time() - tstart))
