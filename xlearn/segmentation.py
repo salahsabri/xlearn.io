@@ -129,7 +129,7 @@ def seg_train(img_x, img_y, patch_size = 32,
     mdl.fit(train_x, train_y, batch_size=batch_size, epochs=nb_epoch)
     return mdl
 
-def seg_predict(img, wpath, spath, patch_size = 32, patch_step = 1,
+def seg_predict(img, wpath, patch_size = 32, patch_step = 1,
                   nb_conv=32, size_conv=3,
                   batch_size=1000, nb_down=2, nb_gpu = 1):
     """
@@ -140,8 +140,7 @@ def seg_predict(img, wpath, spath, patch_size = 32, patch_step = 1,
         The images need to be segmented.
     wpath: string
         The path where the trained weights of the model can be read.
-    spath: string
-        The path to save the segmented images.
+    
     patch_size: int
         The size of the small patches extracted from the input images. This size should be big enough to cover the
         features of the segmentation object.
@@ -178,8 +177,8 @@ def seg_predict(img, wpath, spath, patch_size = 32, patch_step = 1,
         predict_y = mdl.predict(predict_x, batch_size=batch_size)
         predict_y = np.reshape(predict_y, (predict_y.shape[0],patch_size, patch_size))
         predict_y = reconstruct_patches(predict_y, (ih, iw), patch_step)
-        fname = 'prd.tif'
-        io.imsave(join(spath,fname),predict_y)
+        return predict_y
+
     else:
         pn, ih, iw = img.shape
         for i in range(pn):
@@ -192,5 +191,4 @@ def seg_predict(img, wpath, spath, patch_size = 32, patch_step = 1,
             predict_y = np.reshape(predict_y, (len(predict_y), patch_size, patch_size))
             predict_y = reconstruct_patches(predict_y, (ih, iw), patch_step)
             fname = 'prd-' + str(i)+'.tif'
-            io.imsave(join(spath,fname),predict_y)
             print('The prediction runs for %s seconds' % (time.time() - tstart))
