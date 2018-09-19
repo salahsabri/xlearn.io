@@ -67,6 +67,11 @@ __all__ = ['model_choose',
 def model_choose(ih, iw, nb_conv, size_conv, nb_down, nb_gpu):
     if nb_down == 3:
         mdl = transformer3_pooling(ih, iw, nb_conv, size_conv, nb_gpu)
+
+    elif nb_down == 1:
+        mdl = transformer_3CNN(ih, iw,idim=10, nb_conv, size_conv, nb_gpu)
+
+
     else:
         mdl = transformer2(ih, iw, nb_conv, size_conv, nb_gpu)
     return mdl
