@@ -54,6 +54,7 @@ from os.path import join
 from skimage import io
 from xlearn.utils import nor_data, extract_3d, reconstruct_patches
 from xlearn.models import transformer2, transformer3_pooling
+import numpy as np
 
 __authors__ = "Xiaogang Yang, Francesco De Carlo"
 __copyright__ = "Copyright (c) 2018, Argonne National Laboratory"
@@ -181,6 +182,7 @@ def seg_predict(img, wpath, patch_size = 32, patch_step = 1,
 
     else:
         pn, ih, iw = img.shape
+        images = np.empty(pn, dtype=object) # create empty array 
         for i in range(pn):
             print('Processing the %s th image' % i)
             tstart = time.time()
@@ -190,5 +192,5 @@ def seg_predict(img, wpath, patch_size = 32, patch_step = 1,
             predict_y = mdl.predict(predict_x, batch_size=batch_size)
             predict_y = np.reshape(predict_y, (len(predict_y), patch_size, patch_size))
             predict_y = reconstruct_patches(predict_y, (ih, iw), patch_step)
-            fname = 'prd-' + str(i)+'.tif'
-            print('The prediction runs for %s seconds' % (time.time() - tstart))
+            images[i]=predict_y
+            return images
