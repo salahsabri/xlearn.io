@@ -476,7 +476,7 @@ def psnr(y_true, y_pred):
     """
     return 1/(10.0 * tf.log(1.0 / (tf.mean(tf.square(y_pred - y_true)))) / tf.log(10.0))
 
-def transformer_3CNN(ih, iw,idim, nb_conv, size_conv, nb_gpu):
+def transformer_3CNN(ih, iw, nb_conv, size_conv, nb_gpu):
 
     """
     The cnn image transformation model with 3 times of downsampling. The downsampling uses maxpooling.
@@ -497,8 +497,8 @@ def transformer_3CNN(ih, iw,idim, nb_conv, size_conv, nb_gpu):
         Description.
 
     """
-
-    inputs = Input((ih, iw, idim))
+    xx=10
+    inputs = Input((ih, iw, xx))
     
     conv1 =Convolution3D(nb_conv, kernel_size=(3, 5, 5), strides=(1, 1, 1), padding="same", activation="relu", name='conv1', kernel_regularizer=l2(regularize_weight))(inputs)
     conv1 =Convolution3D(nb_conv, kernel_size=(3, 5, 5), strides=(1, 1, 1), padding="same", activation="relu", name='conv1', kernel_regularizer=l2(regularize_weight))(conv1)
