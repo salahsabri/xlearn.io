@@ -69,7 +69,7 @@ def model_choose(ih, iw, nb_conv, size_conv, nb_down, nb_gpu):
         mdl = transformer3_pooling(ih, iw, nb_conv, size_conv, nb_gpu)
 
     elif nb_down == 1:
-        mdl = transformer_3CNN(ih, iw,idim=10, nb_conv, size_conv, nb_gpu)
+        mdl = transformer_3CNN(ih, iw, nb_conv, size_conv, nb_gpu)
 
 
     else:
